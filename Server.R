@@ -102,7 +102,57 @@ theme_minimal()
 
 
   # ===================== COMPARACIONES MÚLTIPLES (Tukey) =====================
+  mc_df <- reactive({
+    req(input$mc_file)
+    read.csv(input$mc_file$datapath)
+  })
 
+  output$mc_var_select <- renderUI({
+    df <- mc_df()
+    tagList(
+      selectInput("mc_y", "Respuesta (Y):", names(df)),
+      selectInput("mc_g", "Factor para Tukey:", names(df))
+    )
+  })
+
+  output$mc_results <- renderPrint({
+    req(input$run_mc)
+    df <- mc_df()
+    req(input$mc_y, input$mc_g)
+
+    # Todos los que no son Y se tratan como factores (factor principal + bloques)
+    factores <- setdiff(names(df), input$mc_y)
+    for (v in factores) {
+      df[[v]] <- factor(df[[v]])
+    }
+
+    # Modelo con todos los factores aditivos
+    form_str <- paste(input$mc_y, "~", paste(factores, collapse = " + "))
+    modelo <- aov(as.formula(form_str), data = df)
+
+    cat("Modelo base para Tukey:\n", form_str, "\n\n")
+    cat("Prueba de Tukey para el factor:", input$mc_g, "\n\n")
+    print(TukeyHSD(modelo, which = input$mc_g))
+  })
+
+  output$mc_plot <- renderPlot({
+    df <- mc_df()
+    req(input$mc_y, input$mc_g)
+
+    g <- input$mc_g
+    y <- input$mc_y
+
+    medias <- df %>%
+      group_by(.data[[g]]) %>%
+      summarise(media = mean(.data[[y]]), .groups = "drop")
+
+    ggplot(medias, aes_string(x = g, y = "media")) +
+      geom_point(size = 3, color = "#E1712B") +
+      geom_line(group = 1, color = "#E1712B") +
+      labs(x = g, y = paste("Media de", y),
+           title = "Medias por nivel del factor") +
+      theme_minimal()
+  })
 
   # ===================== REGRESIÓN LINEAL =====================
   rl_df <- reactive({
@@ -178,6 +228,7 @@ theme_minimal()
 
 
   # ===================== REGRESIÓN NO LINEAL =====================
+
 
 
 
