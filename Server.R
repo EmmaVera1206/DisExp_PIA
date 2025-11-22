@@ -105,9 +105,80 @@ theme_minimal()
 
 
   # ===================== REGRESIÓN LINEAL =====================
+  rl_df <- reactive({
+    req(input$rl_file)
+    read.csv(input$rl_file$datapath)
+  })
+
+  output$rl_var_select <- renderUI({
+    df <- rl_df()
+    tagList(
+      selectInput("rl_y", "Respuesta (Y):", names(df)),
+      selectInput("rl_x", "Predictoras (X):", names(df), multiple = TRUE)
+    )
+  })
+
+  rl_model <- reactive({
+    req(input$run_rl)
+    df <- rl_df()
+    req(input$rl_y, input$rl_x)
+    form_str <- paste(input$rl_y, "~", paste(input$rl_x, collapse = " + "))
+    lm(as.formula(form_str), data = df)
+  })
+
+  output$rl_summary <- renderPrint({
+    modelo <- rl_model()
+    cat("Modelo ajustado:\n")
+    print(formula(modelo))
+    cat("\nResumen del modelo:\n")
+    print(summary(modelo))
+  })
+
+  # Dispersión + recta ajustada (solo si hay 1 X)
+  output$rl_scatter <- renderPlot({
+    req(rl_model())
+    if (length(input$rl_x) != 1) return(NULL)
+
+    df <- rl_df()
+    ggplot(df, aes_string(x = input$rl_x[1], y = input$rl_y)) +
+      geom_point(color = "#2A9689") +
+      geom_smooth(method = "lm", se = FALSE, color = "#E1712B") +
+      labs(title = paste("Modelo lineal:", input$rl_y, "vs", input$rl_x[1])) +
+      theme_minimal()
+     })
+
+  # Residuos vs ajustados
+  output$rl_residuals <- renderPlot({
+    modelo <- rl_model()
+    df_res <- data.frame(
+      ajustados = fitted(modelo),
+      residuales = resid(modelo)
+    )
+
+    ggplot(df_res, aes(x = ajustados, y = residuales)) +
+      geom_point(color = "#2A4365") +
+      geom_hline(yintercept = 0, linetype = "dashed") +
+      labs(x = "Valores ajustados", y = "Residuos",
+           title = "Residuos vs valores ajustados") +
+      theme_minimal()
+  })
+
+  # Gráfica Q-Q
+  output$rl_qq <- renderPlot({
+    modelo <- rl_model()
+    df_res <- data.frame(residuales = resid(modelo))
+
+    ggplot(df_res, aes(sample = residuales)) +
+      stat_qq() +
+      stat_qq_line(color = "#E1712B") +
+      labs(title = "Gráfica Q-Q de residuos") +
+      theme_minimal()
+  })
+
 
 
   # ===================== REGRESIÓN NO LINEAL =====================
+
 
 
 
