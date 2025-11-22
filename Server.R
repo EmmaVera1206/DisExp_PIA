@@ -228,6 +228,60 @@ theme_minimal()
 
 
   # ===================== REGRESIÓN NO LINEAL =====================
+   
+  rnl_df <- reactive({
+  req(input$rnl_file)
+  read.csv(input$rnl_file$datapath)
+})
+
+output$rnl_var_select <- renderUI({
+  df <- rnl_df()
+  tagList(
+    selectInput("rnl_x", "X:", names(df)),
+    selectInput("rnl_y", "Y:", names(df))
+  )
+})
+
+# Modelo: y = a * (1 - exp(-b * x))
+rnl_model <- reactive({
+  req(input$run_rnl)
+  df <- rnl_df()
+  x <- df[[input$rnl_x]]
+  y <- df[[input$rnl_y]]
+
+  nls(
+    y ~ a * (1 - exp(-b * x)),
+    start = list(a = input$rnl_start_a, b = input$rnl_start_b)
+  )
+})
+
+output$rnl_summary <- renderPrint({
+  modelo <- rnl_model()
+  cat("Modelo no lineal ajustado:\n")
+  print(formula(modelo))
+  cat("\nResumen del modelo (objeto y.nls):\n")
+  print(summary(modelo))
+})
+
+output$rnl_plot <- renderPlot({
+  df <- rnl_df()
+  x <- df[[input$rnl_x]]
+  y <- df[[input$rnl_y]]
+
+  modelo <- rnl_model()
+
+  # Puntos y curva ajustada
+  xp <- seq(min(x), max(x), length.out = 100)
+  pred <- predict(modelo, newdata = data.frame(x = xp))
+
+  ggplot() +
+    geom_point(aes(x = x, y = y), color = "#2A9689") +
+    geom_line(aes(x = xp, y = pred), color = "#E1712B", linewidth = 1) +
+    labs(x = input$rnl_x, y = input$rnl_y,
+         title = "Ajuste de regresión no lineal") +
+    theme_minimal()
+})
+}
 
 
 
