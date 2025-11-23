@@ -140,10 +140,40 @@ ui <- navbarPage(
 	)
   ),
 
-  # ====================== ANOVA ======================
-
+# ====================== ANOVA ======================
+  tabPanel("ANOVA",
+           sidebarLayout(
+             sidebarPanel(
+               fileInput("anova_file", "Subir archivo CSV", accept = ".csv"),
+               uiOutput("anova_var_select"),
+               actionButton("run_anova", "Ejecutar ANOVA")
+             ),
+             mainPanel(
+               h3("Resultados ANOVA"),
+               verbatimTextOutput("anova_table"),
+               plotOutput("anova_plot")
+             )
+           )
+  ),
 
   # ====================== COMPARACIONES MÚLTIPLES ======================
+  tabPanel("Comparaciones múltiples",
+           sidebarLayout(
+             sidebarPanel(
+               fileInput("mc_file", "Subir archivo CSV", accept = ".csv"),
+               uiOutput("mc_var_select"),
+               selectInput("mc_method", "Método:", 
+                           choices = c("Tukey HSD"="tukey")),
+               numericInput("mc_alpha","Nivel de significancia:",0.05,0.001,0.2,0.01),
+               actionButton("run_mc","Ejecutar comparación")
+             ),
+             mainPanel(
+               verbatimTextOutput("mc_results"),
+               plotOutput("mc_plot")
+             )
+           )
+  ),
+
 
 # --- REGRESION LINEAL =================================================
 tabPanel("Regresion lineal",
@@ -176,3 +206,4 @@ mainPanel(
     plotOutput("rn1_plot")
 )
 ),
+
