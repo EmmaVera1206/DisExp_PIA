@@ -145,8 +145,34 @@ ui <- navbarPage(
 
   # ====================== COMPARACIONES MÚLTIPLES ======================
 
+# --- REGRESION LINEAL =================================================
+tabPanel("Regresion lineal",
+    sidebarLayout(
+    sidebarPanel(
+    fileInput("r1_file","Subir CSV", accept=".csv"),
+    uiOutput("r1_var_select"),
+    actionButton("run_r1","Ajustar modelo")
+),
+mainPanel(
+    verbatimTextOutput("r1_summary"),
+    plotOutput("r1_scatter"),
+    plotOutput("r1_residuals"),
+    plotOutput("r1_qq")
+)
+),
 
-  # ====================== REGRESIÓN LINEAL ======================
-
-
-  # ====================== REGRESIÓN NO LINEAL ======================
+# --- REGRESION NO LINEAL =================================================
+tabPanel("Regresion no lineal",
+    sidebarLayout(
+    sidebarPanel(
+    fileInput("rn1_file","Subir CSV",accept=".csv"),
+    uiOutput("rn1_var_select"),
+    numericInput("rn1_start_a","Initial a:",1),
+    numericInput("rn1_start_b","Initial b:",0.1),
+    actionButton("run_rn1","Ajustar modelo")
+),
+mainPanel(
+    verbatimTextOutput("rn1_summary"),
+    plotOutput("rn1_plot")
+)
+),
