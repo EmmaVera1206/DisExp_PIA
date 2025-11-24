@@ -140,7 +140,7 @@ ui <- navbarPage(
 	)
   ),
 
-# ====================== ANOVA ======================
+  # ====================== ANOVA ======================
   tabPanel("ANOVA",
            sidebarLayout(
              sidebarPanel(
@@ -174,36 +174,38 @@ ui <- navbarPage(
            )
   ),
 
+  # ====================== REGRESIÓN LINEAL ======================
+  tabPanel("Regresión lineal",
+           sidebarLayout(
+             sidebarPanel(
+               fileInput("rl_file","Subir CSV", accept=".csv"),
+               uiOutput("rl_var_select"),
+               actionButton("run_rl","Ajustar modelo")
+             ),
+             mainPanel(
+               verbatimTextOutput("rl_summary"),
+               plotOutput("rl_scatter"),
+               plotOutput("rl_residuals"),
+               plotOutput("rl_qq")
+             )
+           )
+  ),
 
-# --- REGRESION LINEAL =================================================
-tabPanel("Regresion lineal",
-    sidebarLayout(
-    sidebarPanel(
-    fileInput("r1_file","Subir CSV", accept=".csv"),
-    uiOutput("r1_var_select"),
-    actionButton("run_r1","Ajustar modelo")
-),
-mainPanel(
-    verbatimTextOutput("r1_summary"),
-    plotOutput("r1_scatter"),
-    plotOutput("r1_residuals"),
-    plotOutput("r1_qq")
-)
-),
+  # ====================== REGRESIÓN NO LINEAL ======================
+  tabPanel("Regresión no lineal",
+           sidebarLayout(
+             sidebarPanel(
+               fileInput("rnl_file","Subir CSV",accept=".csv"),
+               uiOutput("rnl_var_select"),
+               numericInput("rnl_start_a","Inicial a:",1),
+               numericInput("rnl_start_b","Inicial b:",0.1),
+               actionButton("run_rnl","Ajustar modelo")
+             ),
+             mainPanel(
+               verbatimTextOutput("rnl_summary"),
+               plotOutput("rnl_plot")
+             )
+           )
+  ),
 
-# --- REGRESION NO LINEAL =================================================
-tabPanel("Regresion no lineal",
-    sidebarLayout(
-    sidebarPanel(
-    fileInput("rn1_file","Subir CSV",accept=".csv"),
-    uiOutput("rn1_var_select"),
-    numericInput("rn1_start_a","Initial a:",1),
-    numericInput("rn1_start_b","Initial b:",0.1),
-    actionButton("run_rn1","Ajustar modelo")
-),
-mainPanel(
-    verbatimTextOutput("rn1_summary"),
-    plotOutput("rn1_plot")
-)
-),
-
+ )
